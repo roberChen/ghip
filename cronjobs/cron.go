@@ -32,6 +32,7 @@ func Initial(conf *viper.Viper, ipctrl *controller.IPController) (error) {
 			log.Printf("ERROR: %s\n", err)
 		}
 		if update {
+			log.Println("got update, triggering registered files")
 			for id, f:= range trigger {
 				if err := f(); err != nil {
 					log.Printf("trigger func #%d: %s", id, err)
