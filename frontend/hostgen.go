@@ -66,6 +66,7 @@ func IndexPage(w http.ResponseWriter, ipctrl *controller.IPController) error {
 		if _, err := io.Copy(w, c); err != nil {
 			return fmt.Errorf("IndexPage write: %s", err)
 		}
+		return nil
 	}
 	// write cache
 	if err := os.MkdirAll("cache", fs.ModePerm); err != nil {
@@ -79,7 +80,7 @@ func IndexPage(w http.ResponseWriter, ipctrl *controller.IPController) error {
 	return err
 }
 
-// GenIndexPage will generate a index.html file according to index.md and cache/host.html, and write to cache/index.html, also return
+// GenIndexPage will generate a index.html file according to index.md and cache/host.html, and write to cache/index.html, also return it
 func GenIndexPage(ipctrl *controller.IPController) ([]byte, error) {
 	d, err := os.ReadFile("cache/host.html")
 	if err != nil {
