@@ -50,7 +50,10 @@ func main() {
 	frontend.CheckConfigUpdate(ipctrl, c)
 	cronjobs.Trigger(func() error {
 		log.Println("cron job")
-		frontend.UpdateHostFile(ipctrl)
+		d := frontend.GenHostListsHTML(ipctrl)
+		if err := os.WriteFile("cache/host.html", d, os.ModePerm); err != nil {
+			log.Fatalf("updating host.html: %s", err)
+		}
 		_, err := frontend.GenIndexPage(ipctrl)
 		return err
 	})
