@@ -11,19 +11,25 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"reflect"
+	"sort"
+	"time"
 
 	"github.com/roberChen/ghip/controller"
+	"github.com/spf13/viper"
 )
 
 //go:embed statics
 var statics embed.FS
 
+// GenHostListsHTML generates host list as an HTML node with data from ipctrl, to be embed in index.md
 func GenHostListsHTML(ipctrl *controller.IPController) []byte {
 	t, err := template.New("host.go.tmpl").ParseFS(statics, "statics/host.go.tmpl")
 	if err != nil {
 		log.Fatalln(err)
 	}
 	d := new(Display)
+	d.Time = time.Now().String()
 	localsmap := ipctrl.GetURLIPsLocal()
 	ipaddrmap := ipctrl.GetURLIPsADDRCOM()
 	d.Locals = make([]struct {
@@ -34,21 +40,29 @@ func GenHostListsHTML(ipctrl *controller.IPController) []byte {
 		URL string
 		IPS []string
 	}, 0)
-	for urlnames, ip := range localsmap {
+	for _, urlname := range ipctrl.Sequence {
+		ip, ok := localsmap[urlname]
+		if !ok {
+			continue
+		}
 		d.Locals = append(d.Locals, struct {
 			URL string
 			IP  string
 		}{
-			URL: urlnames,
+			URL: urlname,
 			IP:  ip,
 		})
 	}
-	for urlnames, ips := range ipaddrmap {
+	for _, urlname := range ipctrl.Sequence {
+		ips, ok := ipaddrmap[urlname]
+		if !ok {
+			continue
+		}
 		d.IPADDRCOM = append(d.IPADDRCOM, struct {
 			URL string
 			IPS []string
 		}{
-			URL: urlnames,
+			URL: urlname,
 			IPS: ips,
 		})
 	}
@@ -59,8 +73,8 @@ func GenHostListsHTML(ipctrl *controller.IPController) []byte {
 	return out.Bytes()
 }
 
-// IndexPage writes index page
-func IndexPage(w http.ResponseWriter, ipctrl *controller.IPController) error {
+// IndexPageHandler writes index page when handling the http request, requires ipctrl when update is needed
+func IndexPageHandler(w http.ResponseWriter, ipctrl *controller.IPController) error {
 	c, err := os.Open("cache/index.html")
 	if err == nil {
 		if _, err := io.Copy(w, c); err != nil {
@@ -82,6 +96,7 @@ func IndexPage(w http.ResponseWriter, ipctrl *controller.IPController) error {
 
 // GenIndexPage will generate a index.html file according to index.md and cache/host.html, and write to cache/index.html, also return it
 func GenIndexPage(ipctrl *controller.IPController) ([]byte, error) {
+	log.Printf("updating index.html")
 	d, err := os.ReadFile("cache/host.html")
 	if err != nil {
 		d = UpdateHostFile(ipctrl)
@@ -103,14 +118,32 @@ func GenIndexPage(ipctrl *controller.IPController) ([]byte, error) {
 
 // UpdateHostFile will update cache/host.html by refetching
 func UpdateHostFile(ipctrl *controller.IPController) []byte {
+	log.Printf("updating host.html")
 	if _, err := ipctrl.Updates(); err != nil {
 		log.Fatalf("Update failed: %s", err)
 	}
 	d := GenHostListsHTML(ipctrl)
 	if err := os.WriteFile("cache/host.html", d, os.ModePerm); err != nil {
-		log.Fatalln(err)
+		log.Fatalf("updating host.html: %s",err)
 	}
 	return d
+}
+
+// CheckConfigUpdate will check whether config url lists has been updated, if is, then refetch
+func CheckConfigUpdate(ipctrl *controller.IPController, config *viper.Viper) {
+	seq := []string{}
+	confseq := []string{}
+	copy(seq, ipctrl.Sequence)
+	copy(confseq, config.GetStringSlice("urls.list"))
+	sort.Strings(seq)
+	sort.Strings(confseq)
+	if reflect.DeepEqual(seq, confseq) {
+		return
+	}
+	UpdateHostFile(ipctrl)
+	if _, err := GenIndexPage(ipctrl); err != nil {
+		log.Printf("check config update: %s", err)
+	}
 }
 
 type Display struct {
@@ -122,4 +155,5 @@ type Display struct {
 		URL string
 		IPS []string
 	}
+	Time string
 }

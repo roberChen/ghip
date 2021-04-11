@@ -13,9 +13,10 @@ import (
 )
 
 type IPController struct {
-	db      *gorm.DB
-	urlmaps map[string]*module.IP
-	config  *viper.Viper
+	db       *gorm.DB
+	urlmaps  map[string]*module.IP
+	config   *viper.Viper
+	Sequence []string
 }
 
 // NewIPController initialise a ip controller, with cobra settings. It will load urls setted in config files to url maps.
@@ -28,7 +29,9 @@ func NewIPController(db *gorm.DB, conf *viper.Viper) (*IPController, error) {
 	ipctrl.config = conf
 	// insert urlmaps
 	ipctrl.urlmaps = make(map[string]*module.IP)
+	ipctrl.Sequence = make([]string, 0)
 	for num, urlitem := range ipctrl.config.GetStringSlice("urls.list") {
+		ipctrl.Sequence = append(ipctrl.Sequence, urlitem)
 		if _, ok := ipctrl.urlmaps[urlitem]; ok {
 			log.Printf("duplicate url `%s` No. %d\n", urlitem, num)
 			continue
@@ -39,6 +42,7 @@ func NewIPController(db *gorm.DB, conf *viper.Viper) (*IPController, error) {
 		}
 		ipctrl.urlmaps[urlitem] = ip
 	}
+	
 	return ipctrl, nil
 }
 
@@ -90,7 +94,7 @@ func (ipctrl *IPController) Updates() (bool, error) {
 		if err != nil {
 			log.Printf("write to database failed: %s\n", err)
 		}
-		updated = up && updated
+		updated = up || updated
 	}
 
 	return updated, nil

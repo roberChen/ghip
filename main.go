@@ -47,6 +47,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	frontend.CheckConfigUpdate(ipctrl, c)
 	cronjobs.Trigger(func() error {
 		log.Println("cron job")
 		frontend.UpdateHostFile(ipctrl)
@@ -61,9 +62,10 @@ func main() {
 		log.Printf("[%s] from %s\n", r.Method, r.RemoteAddr)
 		if r.Method != http.MethodGet {
 			fmt.Fprintf(rw, "invalid method: %s", r.Method)
+			log.Printf("invalid method: %s", r.Method)
 			return
 		}
-		err := frontend.IndexPage(rw, ipctrl)
+		err := frontend.IndexPageHandler(rw, ipctrl)
 		if err != nil {
 			rw.WriteHeader(http.StatusServiceUnavailable)
 			fmt.Fprintf(rw, "inner error")

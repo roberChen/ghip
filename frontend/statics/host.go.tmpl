@@ -69,11 +69,15 @@
     }
     
     .code-block {
-        background-color: #d1d1d1;
+        background-color: #f6f8fa;
         padding: 16px;
         margin: 16px;
         border-radius: 6px;
         width: 100%;
+    }
+    
+    .code-comment {
+        color: #6a737d;
     }
 </style>
 <script>
@@ -110,6 +114,7 @@
                 <a href="https://{{$ip.URL}}">{{$ip.URL}}</a>
             </div>
             <br> {{end}} {{end}}
+            <span class="code-comment"># update at {{.Time}}</span>
         </div>
         <div class="host-block hidden" id="ipaddrcom">
             {{with .IPADDRCOM}} {{range $id, $ip:= . -}} {{if gt (len $ip.IPS) 1}}
@@ -130,6 +135,7 @@
                 <a href="https://{{$ip.URL}}">{{$ip.URL}}</a>
             </div>
             <br> {{end}} {{end}}
+            <span class="code-comment"># update at {{.Time}}</span>
         </div>
     </div>
 </div>
