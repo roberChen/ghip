@@ -42,7 +42,7 @@ func NewIPController(db *gorm.DB, conf *viper.Viper) (*IPController, error) {
 		}
 		ipctrl.urlmaps[urlitem] = ip
 	}
-	
+
 	return ipctrl, nil
 }
 
@@ -80,9 +80,9 @@ func (ipctrl *IPController) Updates() (bool, error) {
 	log.Printf("updating database [size (%d)]", len(ipctrl.urlmaps))
 	for urlname, ip := range ipctrl.urlmaps {
 		log.Printf("fetching for url `%s`", urlname)
-		localip, err := ipget.IPAddrLocal(urlname, "80")
+		localip, err := ipget.IPAddrLocal(urlname)
 		if err != nil {
-			log.Printf("getting ip for `%s` from local: %s\n", urlname, err)
+			log.Printf("[FAILED] getting ip for `%s` from local: %s\n", urlname, err)
 		}
 		ip.IPLocal(localip)
 		addrcomip, err := ipget.IPAddrServer(urlname)

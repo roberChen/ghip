@@ -19,14 +19,15 @@ const (
 )
 
 // IPAddrLocal get the real ip for url:port connection via local connection try, the return will be without port info. url would not include scheme, and port should't start with colon
-func IPAddrLocal(url, port string) (string, error) {
-	urlport := url + ":" + port
-	conn, err := net.Dial("tcp", urlport)
+func IPAddrLocal(url string) (string, error) {
+	ips, err := net.LookupHost(url)
 	if err != nil {
-		return "", fmt.Errorf("connection to %s error: %s", urlport, err)
+		return "", fmt.Errorf("lookup failed: %s", err)
 	}
-	ipport := conn.RemoteAddr().String()
-	return ipport[:len(ipport)-len(port)-1], nil
+	if len(ips) == 0 {
+		return "", fmt.Errorf("lookup failed: got empty list")
+	}
+	return ips[0], nil
 }
 
 func IPAddrServer(url string) ([]string, error) {
