@@ -42,6 +42,9 @@
       .host-block .ip.multi:focus-within > .menu {
         display: block;
       }
+      .ip > span {
+        white-space: pre;
+      }
       .menu > div {
         padding: 6px;
         position: relative;
@@ -53,6 +56,7 @@
       }
       .space {
         width: 20%;
+        white-space: pre;
       }
       .hosttab {
         float: left;
@@ -74,7 +78,7 @@
     <script>
       function changeip(mainnode, content) {
         objnode = document.querySelector(mainnode);
-        objnode.textContent = content;
+        objnode.textContent = content + " ".repeat(40 - content.length);
       }
       var tab_list = ["local", "ipaddrcom"];
       function tabswitch(tabid) {
@@ -97,22 +101,22 @@
       <br>
       <div class="code-block">
         <div class="host-block" id="local">
-          <div class="ip" id="1">140.82.112.3</div>
+          <div class="ip" id="1"><span>140.82.112.3</span></div>
           <div class="space"
-            >&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</div
+            >          </div
           >
           <div class="url"><a href="github.com">github.com</a></div>
           <br />
-          <div class="ip" id="2">185.199.108.153</div>
+          <div class="ip" id="2"><span>185.199.108.153</span></div>
           <div class="space"
-            >&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</div
+            >          </div
           >
           <div class="url"><a href="github.io">github.io</a></div>
         </div>
         <div class="host-block hidden" id="ipaddrcom">
-          <div class="ip" id="1">140.82.112.3</div>
+          <div class="ip" id="1"><span>140.82.112.3</span></div>
           <div class="space"
-            >&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</div
+            >          </div
           >
           <div class="url"><a href="github.com">github.com</a></div>
           <br />
@@ -132,7 +136,7 @@
             </div>
           </div>
           <div class="space"
-            >&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</div
+            >          </div
           >
           <div class="url"><a href="github.io">github.io</a></div>
         </div>

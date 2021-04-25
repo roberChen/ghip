@@ -56,6 +56,7 @@
     
     .space {
         width: 20%;
+        white-space: pre;
     }
     
     .hosttab {
@@ -109,7 +110,7 @@
         <div class="host-block" id="local">
             {{with .Locals}} {{range $id, $ip := . -}}
             <div class="ip" id="{{$id}}">{{$ip.IP}}</div>
-            <div class="space">&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</div>
+			<div class="space">			</div>
             <div class="url">
                 <a href="https://{{$ip.URL}}">{{$ip.URL}}</a>
             </div>
@@ -130,7 +131,7 @@
             {{else}}
             <div class="ip" id="{{$id}}">{{index $ip.IPS 0}}</div>
             {{end}}
-            <div class="space">&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</div>
+			<div class="space">			</div>
             <div class="url">
                 <a href="https://{{$ip.URL}}">{{$ip.URL}}</a>
             </div>

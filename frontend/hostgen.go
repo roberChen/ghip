@@ -13,6 +13,7 @@ import (
 	"os"
 	"reflect"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/roberChen/ghip/controller"
@@ -24,7 +25,14 @@ var statics embed.FS
 
 // GenHostListsHTML generates host list as an HTML node with data from ipctrl, to be embed in index.md
 func GenHostListsHTML(ipctrl *controller.IPController) []byte {
-	t, err := template.New("host.go.tmpl").ParseFS(statics, "statics/host.go.tmpl")
+	t, err := template.New("host.go.tmpl").Funcs(template.FuncMap{
+		"fill":func(s string, l int) string{
+			if l - len(s) < 0 {
+				return ""
+			}
+			return strings.Repeat("&emsp;", l - len(s))
+		},
+	}).ParseFS(statics, "statics/host.go.tmpl")
 	if err != nil {
 		log.Fatalln(err)
 	}
